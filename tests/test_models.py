@@ -112,7 +112,7 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(fetched_product.name, product.name)
         self.assertEqual(fetched_product.description, product.description)
         self.assertEqual(fetched_product.price, product.price)
-    
+
     def test_update_a_product(self):
         product = ProductFactory()
         product.id = None
@@ -126,8 +126,8 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(product.description, original_product_desc)
         # Check it was updated in the database as well
         all_products = Product.all()
-        self.assertEqual(products[0].id, original_product_id)
-        self.assertEqual(products[0].description, original_product_desc)
+        self.assertEqual(all_products[0].id, original_product_id)
+        self.assertEqual(all_products[0].description, original_product_desc)
 
     def test_delete_a_product(self):
         product = ProductFactory()
@@ -136,7 +136,7 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(len(all_products), 1)
         product.delete()
         new_data_products = Product.all()
-        self.assertEqual(len(new_data_products), 0 )
+        self.assertEqual(len(new_data_products), 0)
 
     def test_list_all_products(self):
         products = Product.all()
@@ -144,10 +144,49 @@ class TestProductModel(unittest.TestCase):
         for _ in range(5):
             product = ProductFactory()
             product.create()
-        
+
         products = Product.all()
         self.assertEqual(len(products), 5)
 
-    #def search by name
-    #def search by category
-    # def search by availability
+    def test_search_product_by_name(self):
+        products = []
+        for _ in range(5):
+            product = ProductFactory()
+            products.append(product)
+            product.create()
+
+        query_name = products[0].name
+        products_with_query_name = [product for product in products if product.name == query_name]
+        count = len(products_with_query_name)
+        found_products = Product.find_by_name(query_name)
+        self.assertEqual(found_products.count(), count)
+        for product in found_products:
+            self.assertEqual(product.name, query_name)
+
+    def test_search_product_by_category(self):
+        products = []
+        for _ in range(10):
+            product = ProductFactory()
+            products.append(product)
+            product.create()
+
+        category = products[0].category
+        count = len([product for product in products if product.category == category])
+        found_products = Product.find_by_category(category)
+        self.assertEqual(found_products.count(), count)
+        for product in found_products:
+            self.assertEqual(product.category, category)
+
+    def test_search_product_by_availability(self):
+        products = []
+        for _ in range(10):
+            product = ProductFactory()
+            products.append(product)
+            product.create()
+
+        available = products[0].available
+        count = len([product for product in products if product.available == available])
+        found_products = Product.find_by_availability(available)
+        self.assertEqual(found_products.count(), count)
+        for product in found_products:
+            self.assertEqual(product.available, available)
