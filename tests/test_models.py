@@ -101,6 +101,53 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(new_product.available, product.available)
         self.assertEqual(new_product.category, product.category)
 
-    #
-    # ADD YOUR TEST CASES HERE
-    #
+    def test_read_a_product(self):
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        # Assert the properties of the product in the database are correct
+        fetched_product = Product.find(product.id)
+        self.assertEqual(fetched_product.id, product.id)
+        self.assertEqual(fetched_product.name, product.name)
+        self.assertEqual(fetched_product.description, product.description)
+        self.assertEqual(fetched_product.price, product.price)
+    
+    def test_update_a_product(self):
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        product.description = "Random description for testing purposes"
+        original_product_id = product.id
+        original_product_desc = product.description
+        product.update()
+        self.assertEqual(product.id, original_product_id)
+        self.assertEqual(product.description, original_product_desc)
+        # Check it was updated in the database as well
+        all_products = Product.all()
+        self.assertEqual(products[0].id, original_product_id)
+        self.assertEqual(products[0].description, original_product_desc)
+
+    def test_delete_a_product(self):
+        product = ProductFactory()
+        product.create()
+        all_products = Product.all()
+        self.assertEqual(len(all_products), 1)
+        product.delete()
+        new_data_products = Product.all()
+        self.assertEqual(len(new_data_products), 0 )
+
+    def test_list_all_products(self):
+        products = Product.all()
+        self.assertEqual(len(products), 0)
+        for _ in range(5):
+            product = ProductFactory()
+            product.create()
+        
+        products = Product.all()
+        self.assertEqual(len(products), 5)
+
+    #def search by name
+    #def search by category
+    # def search by availability
